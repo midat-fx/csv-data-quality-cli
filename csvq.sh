@@ -215,7 +215,7 @@ cmd_diff() {
     esac
     shift
   done
-  [ -n "$old" ] && [ -n "$new" ] || die "diff: needs OLD and NEW files"
+  if [ -z "$old" ] || [ -z "$new" ]; then die "diff: needs OLD and NEW files"; fi
   [ -n "$key" ] || die "diff: --key is required"
   require_file "$old"
   require_file "$new"

@@ -3,7 +3,7 @@
 [![ci](https://github.com/midat-fx/csv-data-quality-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/midat-fx/csv-data-quality-cli/actions/workflows/ci.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![deps: none](https://img.shields.io/badge/runtime%20deps-none-brightgreen.svg)](#requirements)
-[![awk: gawk · mawk · bsd](https://img.shields.io/badge/awk-gawk%20%C2%B7%20mawk%20%C2%B7%20bsd-informational.svg)](docs/benchmarks.md)
+[![awk: gawk · mawk · bsd · busybox](https://img.shields.io/badge/awk-gawk%20%C2%B7%20mawk%20%C2%B7%20bsd%20%C2%B7%20busybox-informational.svg)](docs/benchmarks.md)
 
 Audit and clean CSV files from the shell, with **zero runtime dependencies** and
 **byte-deterministic output** — so a data-quality report can be a CI gate that
@@ -148,8 +148,8 @@ CSVQ_AWK=gawk tests/run_tests.sh   # pick an awk implementation
 UPDATE=1 tests/run_tests.sh        # regenerate goldens after an intended change
 ```
 
-CI runs the suite under GNU awk, mawk, and BSD awk against the same goldens
-(busybox awk informationally), plus shellcheck, shfmt, and an in-container build.
+CI runs the suite under GNU awk, mawk, BSD awk, and busybox awk against the same
+goldens, plus shellcheck, shfmt, and an in-container build.
 
 ## Limitations
 

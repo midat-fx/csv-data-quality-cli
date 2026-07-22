@@ -30,9 +30,8 @@ jobs:
           CSVQ_AWK=gawk tests/run_tests.sh
 
   busybox:
-    name: test (busybox awk, informational)
+    name: test (busybox awk)
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: Install busybox
