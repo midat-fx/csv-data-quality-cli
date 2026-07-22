@@ -1,0 +1,70 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: awk version
+        run: awk --version 2>/dev/null | head -1 || awk -Wversion 2>&1 | head -1 || true
+      - name: Test under the platform default awk
+        run: tests/run_tests.sh
+      - name: Test under GNU awk
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq gawk
+          CSVQ_AWK=gawk tests/run_tests.sh
+
+  busybox:
+    name: test (busybox awk, informational)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install busybox
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq busybox
+      - name: Run suite under busybox awk
+        run: |
+          printf '#!/bin/sh\nexec busybox awk "$@"\n' | sudo tee /usr/local/bin/bbawk >/dev/null
+          sudo chmod +x /usr/local/bin/bbawk
+          CSVQ_AWK=bbawk tests/run_tests.sh
+
+  lint:
+    name: lint (shellcheck + shfmt)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck
+          shellcheck csvq.sh tests/run_tests.sh tests/framework.sh
+      - name: shfmt
+        run: |
+          curl -fsSL -o /tmp/shfmt https://github.com/mvdan/sh/releases/download/v3.8.0/shfmt_v3.8.0_linux_amd64
+          chmod +x /tmp/shfmt
+          /tmp/shfmt -d -i 2 -ci csvq.sh tests/run_tests.sh tests/framework.sh
+
+  docker:
+    name: docker build + in-image tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image (runs the test suite inside)
+        run: docker build -t csvq:ci .
+      - name: Smoke-test the entrypoint
+        run: docker run --rm csvq:ci version
