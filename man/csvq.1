@@ -1,0 +1,50 @@
+.TH CSVQ 1 "2026-02-15" "csvq 1.0.0" "User Commands"
+.SH NAME
+csvq \- deterministic CSV data-quality toolkit
+.SH SYNOPSIS
+.B csvq
+.I command
+[\fIoptions\fR] [\fIfiles\fR]
+.SH DESCRIPTION
+.B csvq
+is a pure Bash and POSIX awk toolkit for auditing and cleaning CSV files.
+It has no runtime dependencies and produces byte-deterministic output
+(LC_ALL=C, no timestamps or paths-of-the-day), which makes it suitable as a
+data-quality gate in CI pipelines.
+.SH COMMANDS
+.TP
+.B audit \fIpaths...\fR [\-o \fIDIR\fR] [\-d \fIDELIM\fR] [\-\-strict]
+Write analysis_report.txt, data_summary.txt and duplicates_found.txt into
+DIR (default ./out). With \-\-strict, exit non-zero if any file has duplicate
+or ragged rows.
+.TP
+.B stats \fIfile\fR [\-d \fIDELIM\fR]
+Per-column type, null rate, cardinality, min/max/mean and top values.
+.TP
+.B validate \fIfile\fR \-\-schema \fIFILE\fR [\-d \fIDELIM\fR]
+Validate against a schema DSL. Exit non-zero on any violation.
+.TP
+.B diff \fIold\fR \fInew\fR \-\-key \fICOL\fR[,\fICOL\fR] [\-d \fIDELIM\fR]
+Keyed row diff: added, changed and removed rows.
+.TP
+.B dedupe \fIfile\fR [\-\-key \fICOL\fR[,\fICOL\fR]] [\-d \fIDELIM\fR]
+Drop duplicate rows, whole-row or by key, keeping the first occurrence.
+.TP
+.B normalize \fIfile\fR [\-\-in\-place]
+CRLF to LF, strip trailing whitespace, ensure a final newline.
+.SH EXIT STATUS
+.TP
+.B 0
+Success (and, for validate/audit \-\-strict, no issues).
+.TP
+.B 1
+Validation violations, or a failed \-\-strict gate.
+.TP
+.B 2
+Usage error (bad arguments or missing file).
+.SH ENVIRONMENT
+.TP
+.B CSVQ_AWK
+awk implementation to use (default: awk).
+.SH AUTHOR
+Midat Faizov.
